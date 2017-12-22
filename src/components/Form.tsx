@@ -68,7 +68,7 @@ export class Form extends React.Component<any, {}> {
                 <form onSubmit={this.handleSubmit}>
                     <select name="selectDep" onChange={this.handleChange}><option value="">FROM</option>{departure}</select>
                     <br/>
-                    <select name="selectArr" onChange={this.handleChange}><option value="">DESTINATION</option>{arrival}</select>
+                    <select name="selectArr" onChange={this.handleChange}><option value="">TO</option>{arrival}</select>
                         <div className="onoffswitch">
                             <input type="checkbox" name="chooseAlgo" className="onoffswitch-checkbox" id="myonoffswitch" onChange={this.handleChange} />
                             <label className="onoffswitch-label" htmlFor="myonoffswitch">
@@ -76,7 +76,7 @@ export class Form extends React.Component<any, {}> {
                                 <span className="onoffswitch-switch"></span>
                             </label>
                         </div>
-                    <input type="submit" value="Submit" />
+                    <input type="submit" value="Submit" className="button" />
                 </form>
                 <div id="result" className="resultbox">
                     <div id="resultright" className="resultbox-right">

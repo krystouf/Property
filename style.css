@@ -1,0 +1,100 @@
+@font-face {
+  font-family: "Ionicons";
+  src: url("../fonts/ionicons.eot?v=2.0.1");
+  src: url("../fonts/ionicons.eot?v=2.0.1#iefix") format("embedded-opentype"), url("../fonts/ionicons.ttf?v=2.0.1") format("truetype"), url("../fonts/ionicons.woff?v=2.0.1") format("woff"), url("../fonts/ionicons.woff") format("woff"), url("../fonts/ionicons.svg?v=2.0.1#Ionicons") format("svg");
+  font-weight: normal;
+  font-style: normal; }
+
+.onoffswitch {
+    position: relative; width: 120px;
+    -webkit-user-select:none; -moz-user-select:none; -ms-user-select: none;
+}
+.onoffswitch-checkbox {
+    display: none;
+}
+.onoffswitch-label {
+    display: block; overflow: hidden; cursor: pointer;
+    border: 2px solid #999999; border-radius: 0px;
+}
+.onoffswitch-inner {
+    display: block; width: 200%; margin-left: -100%;
+    transition: margin 0.3s ease-in 0s;
+}
+.onoffswitch-inner:before, .onoffswitch-inner:after {
+    display: block; float: left; width: 50%; height: 30px; padding: 0; line-height: 30px;
+    font-size: 14px; color: white; font-family: Trebuchet, Arial, sans-serif; font-weight: bold;
+    box-sizing: border-box;
+}
+.onoffswitch-inner:before {
+    content: "Cheapest";
+    padding-left: 10px;
+    background-color: #D1D1D1; color: #0A0A0A;
+}
+.onoffswitch-inner:after {
+    content: "Fastest";
+    padding-right: 10px;
+    background-color: #D1D1D1; color: #0A0A0A;
+    text-align: right;
+}
+.onoffswitch-switch {
+    display: block; width: 16px; margin: 7px;
+    background: #FFFFFF;
+    position: absolute; top: 0; bottom: 0;
+    right: 76px;
+    border: 2px solid #999999; border-radius: 0px;
+    transition: all 0.3s ease-in 0s; 
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+.onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px; 
+    background-color: #3C91B0; 
+}
+
+.cost-span{
+	float: right;
+	font-size: 1.5em;
+	color: red;
+}
+
+.cost-span2{
+	float: left;
+	font-size: 1em;
+	color: red;
+}
+
+form{
+	width: 120px;
+	margin: auto;
+}
+
+select{
+	width: 100%;
+}
+
+input[type:submit]{
+	width: 100%;
+}
+
+.resultbox{
+	max-width: 500px;
+	margin: auto;
+	margin-top: 50px;
+}
+
+.resultbox-right{
+	width: 250px;
+	float: right;
+}
+
+.resultbox-left{
+	width: 250px;
+	float: left;
+}
+
+.item{
+	padding: 10px;
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+	color: #444;
+}

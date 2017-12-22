@@ -18275,20 +18275,42 @@ var React = __webpack_require__(2);
 var selectDep = "";
 var selectArr = "";
 var chooseAlgo = "fastest";
+var filterdCites = [];
+var resultHTML = "";
+var totalTime = 0;
+var totalCost = 0;
 var Graph = __webpack_require__(28);
-var route = new Graph();
+var g = new Graph();
+var details = __webpack_require__(33);
+var deals = details.deals;
 var Form = /** @class */ (function (_super) {
     __extends(Form, _super);
     function Form() {
-        var _this = _super !== null && _super.apply(this, arguments) || this;
-        _this.details = __webpack_require__(33);
-        _this.deals = _this.details.deals;
-        return _this;
+        return _super !== null && _super.apply(this, arguments) || this;
     }
     Form.prototype.handleSubmit = function (event) {
-        // if (chooseAlgo == "fastest"){
-        // }else if (chooseAlgo == "cheapest"){
-        // }
+        buildGraph(chooseAlgo);
+        var route = g.shortestPath(selectDep, selectArr);
+        var resultsArray = [];
+        resultHTML = "";
+        totalCost = 0;
+        totalTime = 0;
+        for (var i = 0; i < route.length - 1; i++) {
+            var detObj = getDetails(route[i], route[i + 1]);
+            resultHTML += '<div class="item">';
+            resultHTML += "<h3>" + detObj.departure + "<strong> > </strong> " + detObj.arrival + "</h3>";
+            resultHTML += "<h5>" + detObj.transport + " <em>" + detObj.reference + "</em> for " + detObj.duration.h + "H:" + detObj.duration.m + "m <span><strong class='cost-span'>" + detObj.cost + " $</strong></span></h5>";
+            resultHTML += '</div>';
+            totalCost += detObj.cost;
+            totalTime = totalTime + Number(detObj.duration.h) * 60 + Number(detObj.duration.m);
+        }
+        ;
+        document.getElementById("resultright").innerHTML = resultHTML;
+        resultHTML = "<h2 style='margin-bottom: 0px;'>" + selectDep + " to " + selectArr + "</h2>";
+        resultHTML += "<h3 style='margin-top: 0px; text-transform: capitalize;'>" + chooseAlgo + " trip</h3>";
+        resultHTML += "<span><strong class='cost-span2'> Total cost: " + totalCost + " $</strong></span>";
+        resultHTML += "<br/><span><strong class='cost-span2'> Total time: " + totalTime / 60 + " Hours" + "</strong></span>";
+        document.getElementById("resultleft").innerHTML = resultHTML;
         event.preventDefault();
     };
     Form.prototype.handleChange = function (event) {
@@ -18308,12 +18330,11 @@ var Form = /** @class */ (function (_super) {
                 }
                 break;
         }
-        console.log(selectDep + " | " + selectArr + " | " + chooseAlgo);
     };
     Form.prototype.render = function () {
         var i = 0;
-        var departure = createOptions(this.deals, "departure");
-        var arrival = createOptions(this.deals, "arrival");
+        var departure = createOptions(deals, "departure");
+        var arrival = createOptions(deals, "arrival");
         return (React.createElement("div", null,
             React.createElement("form", { onSubmit: this.handleSubmit },
                 React.createElement("select", { name: "selectDep", onChange: this.handleChange },
@@ -18328,7 +18349,10 @@ var Form = /** @class */ (function (_super) {
                     React.createElement("label", { className: "onoffswitch-label", htmlFor: "myonoffswitch" },
                         React.createElement("span", { className: "onoffswitch-inner" }),
                         React.createElement("span", { className: "onoffswitch-switch" }))),
-                React.createElement("input", { type: "submit", value: "Submit" }))));
+                React.createElement("input", { type: "submit", value: "Submit" })),
+            React.createElement("div", { id: "result", className: "resultbox" },
+                React.createElement("div", { id: "resultright", className: "resultbox-right" }),
+                React.createElement("div", { id: "resultleft", className: "resultbox-left" }))));
     };
     return Form;
 }(React.Component));
@@ -18347,6 +18371,116 @@ function removeDuplicates(myArr, prop) {
         return arr.map(function (mapObj) { return mapObj[prop]; }).indexOf(obj[prop]) === pos;
     });
 }
+var buildGraph = function (algorithm) {
+    // filterdCites is an array of new filterd data
+    var uniqueCities = removeDuplicates(deals, "departure");
+    //algorithm is cheapest or fastest
+    if (algorithm == 'cheapest') {
+        // filter the data with lowest value in cost
+        filterdCites = filterCities('cheapest');
+        // after filteration build the graph
+        for (var i = 0; i < uniqueCities.length; i++) {
+            var currentCityName = uniqueCities[i].departure;
+            var object = new Object;
+            for (var j = 0; j < filterdCites.length; j++) {
+                if (filterdCites[j].departure == currentCityName) {
+                    var arrivalName = filterdCites[j].arrival;
+                    var cost = filterdCites[j].cost;
+                    object[arrivalName] = cost;
+                }
+            }
+            if (!isEmpty(object)) {
+                g.addVertex(currentCityName, object);
+            }
+        }
+    }
+    else if (algorithm == 'fastest') {
+        // filter the data with lowest value in time
+        filterdCites = filterCities('fastest');
+        // after filteration build the graph
+        for (var i = 0; i < uniqueCities.length; i++) {
+            var currentCityName = uniqueCities[i].departure;
+            var object = new Object;
+            for (var j = 0; j < filterdCites.length; j++) {
+                if (filterdCites[j].departure == currentCityName) {
+                    var arrivalName = filterdCites[j].arrival;
+                    var duration = Number(filterdCites[j].duration.h) * 60 + Number(filterdCites[j].duration.m);
+                    object[arrivalName] = duration;
+                }
+            }
+            if (!isEmpty(object)) {
+                g.addVertex(currentCityName, object);
+            }
+        }
+    }
+};
+var isEmpty = function (obj) {
+    for (var prop in obj) {
+        if (obj.hasOwnProperty(prop))
+            return false;
+    }
+    return true;
+};
+var filterCities = function (algorithm) {
+    if (algorithm == 'cheapest') {
+        var filterdDeals = [];
+        // filter by cheapest 
+        for (var i = 0; i < deals.length; i++) {
+            var currentObject = deals[i];
+            for (var j = i; j < deals.length; j++) {
+                if (currentObject.departure == deals[j].departure && currentObject.arrival == deals[j].arrival) {
+                    // apply the discount on the cost and choose the lowest value
+                    if (currentObject.discount != 0)
+                        var currentObjectFinalCost = Number(currentObject.cost) * (currentObject.discount / 100);
+                    else
+                        var currentObjectFinalCost = Number(currentObject.cost);
+                    if (deals[j].discount != 0)
+                        var tempObjectFinalCost = Number(deals[j].cost) * (deals[j].discount / 100);
+                    else
+                        var tempObjectFinalCost = Number(deals[j].cost);
+                    if (currentObjectFinalCost > tempObjectFinalCost)
+                        currentObject = deals[j];
+                }
+            }
+            if (objectNotExistsBefore(currentObject, filterdDeals))
+                filterdDeals.push(currentObject);
+        }
+        return filterdDeals;
+    }
+    else if (algorithm == 'fastest') {
+        var filterdDeals = [];
+        // filter by fastest
+        for (var i = 0; i < deals.length; i++) {
+            var currentObject = deals[i];
+            for (var j = i; j < deals.length; j++) {
+                if (currentObject.departure == deals[j].departure && currentObject.arrival == deals[j].arrival) {
+                    // calculate the time in minutes to compare the fastest
+                    var currentObjectDurationTime = Number(currentObject.duration.h) * 60 + Number(currentObject.duration.m);
+                    var tempObjectDurationTime = Number(deals[j].duration.h) * 60 + Number(deals[j].duration.m);
+                    if (currentObjectDurationTime > tempObjectDurationTime)
+                        currentObject = deals[j];
+                }
+            }
+            if (objectNotExistsBefore(currentObject, filterdDeals))
+                filterdDeals.push(currentObject);
+        }
+        return filterdDeals;
+    }
+};
+var objectNotExistsBefore = function (object, array) {
+    for (var i = 0; i < array.length; i++) {
+        if (object.arrival == array[i].arrival && object.departure == array[i].departure)
+            return false;
+    }
+    return true;
+};
+var getDetails = function (from, to) {
+    for (var i = 0; i < filterdCites.length; i++) {
+        if (filterdCites[i].departure == from && filterdCites[i].arrival == to)
+            return filterdCites[i];
+    }
+    ;
+};
 
 
 /***/ }),

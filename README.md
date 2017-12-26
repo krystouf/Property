@@ -2,5 +2,5 @@
 To make it run, do the following:
 npm run start
 
-To update the code:
+To compile after any change:
 npm run build
